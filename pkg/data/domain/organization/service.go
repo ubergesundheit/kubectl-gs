@@ -4,9 +4,10 @@ import (
 	"context"
 
 	securityv1alpha1 "github.com/giantswarm/apiextensions/v3/pkg/apis/security/v1alpha1"
-	"github.com/giantswarm/kubectl-gs/pkg/data/client"
 	"github.com/giantswarm/microerror"
 	runtimeClient "sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/giantswarm/kubectl-gs/pkg/data/client"
 )
 
 var _ Interface = &Service{}
