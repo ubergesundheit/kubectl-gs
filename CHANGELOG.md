@@ -7,9 +7,22 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.26.0] - 2021-04-13
+
 ### Added
 
 - Add clusterresourcesets and clusterresourcesetbindings CRDs to the information about Cluster API CRDs and controllers.
+
+### Removed
+
+- Removed the `--num-availability-zones` flag from the `kubectl-gs template` commands. The `--availability-zones` flag
+should be used to specify a list of availability zones.
+
+### Changed
+
+- Build release binaries using go 1.16. Kubectl-gs is now available for Linux and Darwin ARM64 machines including Apple M1 Macs.
+- Upgrade dependency github.com/giantswarm/app to 4.9.0
+- Fetch installation information using a new service, instead of relying on the Giant Swarm REST API.
 
 ## [1.25.0] - 2021-03-16
 
@@ -296,7 +309,8 @@ This release supports rendering for CRs:
 - `AppCatalog`
 - `App`
 
-[Unreleased]: https://github.com/giantswarm/kubectl-gs/compare/v1.25.0...HEAD
+[Unreleased]: https://github.com/giantswarm/kubectl-gs/compare/v1.26.0...HEAD
+[1.26.0]: https://github.com/giantswarm/kubectl-gs/compare/v1.25.0...v1.26.0
 [1.25.0]: https://github.com/giantswarm/kubectl-gs/compare/v1.24.0...v1.25.0
 [1.24.0]: https://github.com/giantswarm/kubectl-gs/compare/v1.23.0...v1.24.0
 [1.23.0]: https://github.com/giantswarm/kubectl-gs/compare/v1.22.0...v1.23.0

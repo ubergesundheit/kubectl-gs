@@ -108,10 +108,10 @@ func (r *runner) tryToReuseExistingContext() error {
 	}
 
 	if currentContext != "" {
-		return microerror.Maskf(selectedContextNonCompatibleError, "The current context '%s' does not seem to belong to a Giant Swarm management cluster.\nPlease run 'kgs login --help' to find out how to log in to a particular management cluster.", currentContext)
+		return microerror.Maskf(selectedContextNonCompatibleError, "The current context '%s' does not seem to belong to a Giant Swarm management cluster.\nPlease run 'kubectl gs login --help' to find out how to log in to a particular management cluster.", currentContext)
 	}
 
-	return microerror.Maskf(selectedContextNonCompatibleError, "The current context does not seem to belong to a Giant Swarm management cluster.\nPlease run 'kgs login --help' to find out how to log in to a particular management cluster.")
+	return microerror.Maskf(selectedContextNonCompatibleError, "The current context does not seem to belong to a Giant Swarm management cluster.\nPlease run 'kubectl gs login --help' to find out how to log in to a particular management cluster.")
 }
 
 // loginWithKubeContextName switches the active kubernetes context to
@@ -127,7 +127,7 @@ func (r *runner) loginWithKubeContextName(ctx context.Context, contextName strin
 		return microerror.Mask(err)
 	}
 
-	fmt.Fprint(r.stdout, color.YellowString("Note: No need to pass the '%s' prefix. 'kgs login %s' works fine.\n", kubeconfig.ContextPrefix, codeName))
+	fmt.Fprint(r.stdout, color.YellowString("Note: No need to pass the '%s' prefix. 'kubectl gs login %s' works fine.\n", kubeconfig.ContextPrefix, codeName))
 
 	if contextAlreadySelected {
 		fmt.Fprintf(r.stdout, "Context '%s' is already selected.\n", contextName)
@@ -167,15 +167,15 @@ func (r *runner) loginWithCodeName(ctx context.Context, codeName string) error {
 // loginWithURL performs the OIDC login into an installation's
 // k8s api with a happa/k8s api URL.
 func (r *runner) loginWithURL(ctx context.Context, path string) error {
-	i, err := installation.New(path)
+	i, err := installation.New(ctx, path)
 	if installation.IsUnknownUrlType(err) {
-		return microerror.Maskf(unknownUrlError, "'%s' is not a valid Giant Swarm Control Plane API URL. Please check the spelling.\nIf not sure, pass the web UI URL of the installation or the installation handle as an argument instead.", path)
+		return microerror.Maskf(unknownUrlError, "'%s' is not a valid Giant Swarm Management API URL. Please check the spelling.\nIf not sure, pass the web UI URL of the installation or the installation handle as an argument instead.", path)
 	} else if err != nil {
 		return microerror.Mask(err)
 	}
 
 	if installation.GetUrlType(path) == installation.UrlTypeHappa {
-		fmt.Fprint(r.stdout, color.YellowString("Note: deriving Control Plane API URL from web UI URL: %s\n", i.K8sApiURL))
+		fmt.Fprint(r.stdout, color.YellowString("Note: deriving Management API URL from web UI URL: %s\n", i.K8sApiURL))
 	}
 
 	authResult, err := handleAuth(ctx, r.stdout, i, r.flag.ClusterAdmin)
@@ -195,7 +195,7 @@ func (r *runner) loginWithURL(ctx context.Context, path string) error {
 	fmt.Fprintf(r.stdout, "A new kubectl context has been created named '%s' and selected.", contextName)
 	fmt.Fprintf(r.stdout, " ")
 	fmt.Fprintf(r.stdout, "To switch back to this context later, use either of these commands:\n\n")
-	fmt.Fprintf(r.stdout, "  kgs login %s\n", i.Codename)
+	fmt.Fprintf(r.stdout, "  kubectl gs login %s\n", i.Codename)
 	fmt.Fprintf(r.stdout, "  kubectl config use-context %s\n", contextName)
 
 	return nil
