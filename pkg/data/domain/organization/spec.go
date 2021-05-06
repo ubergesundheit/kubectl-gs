@@ -28,7 +28,7 @@ type Organization struct {
 }
 
 func (o *Organization) Object() runtime.Object {
-	return o
+	return o.Organization
 }
 
 // Collection wraps a list of organizations.
