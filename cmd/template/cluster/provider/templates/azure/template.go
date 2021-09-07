@@ -17,6 +17,9 @@ var kubeadmControlPlane string
 //go:embed azure_machine_template.yaml.tmpl
 var azureMachineTemplate string
 
+//go:embed bastion.yaml.tmpl
+var bastion string
+
 // GetTemplate merges all .tmpl files.
 func GetTemplate() string {
 	return strings.Join([]string{
@@ -24,6 +27,7 @@ func GetTemplate() string {
 		azureCluster,
 		kubeadmControlPlane,
 		azureMachineTemplate,
+		bastion,
 		// Adds a separator at the end of the joined template for easier joinability of cluster and node pool templates.
 		"",
 	}, "\n---\n")

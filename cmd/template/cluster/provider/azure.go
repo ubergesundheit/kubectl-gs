@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"encoding/base64"
 	"fmt"
 	"io"
 	"text/template"
@@ -44,22 +45,34 @@ func WriteAzureTemplate(out io.Writer, config ClusterCRsConfig) error {
 func WriteCAPZTemplate(out io.Writer, config ClusterCRsConfig) error {
 	var err error
 
+	var sshSSOPublicKey string
+	{
+		sshSSOPublicKey, err = key.SSHSSOPublicKey()
+		if err != nil {
+			return microerror.Mask(err)
+		}
+	}
+
 	data := struct {
-		Description       string
-		KubernetesVersion string
-		Name              string
-		Namespace         string
-		Owner             string
-		Version           string
-		VMSize            string
+		BastionIgnitionSecretBase64 string
+		BastionVMSize               string
+		Description                 string
+		KubernetesVersion           string
+		Name                        string
+		Namespace                   string
+		Owner                       string
+		Version                     string
+		VMSize                      string
 	}{
-		Description:       config.Description,
-		KubernetesVersion: "v1.19.9",
-		Name:              config.Name,
-		Namespace:         key.OrganizationNamespaceFromName(config.Owner),
-		Owner:             config.Owner,
-		Version:           config.ReleaseVersion,
-		VMSize:            "Standard_D4s_v3",
+		BastionIgnitionSecretBase64: base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf(key.BastionIgnitionTemplate, config.Name, key.BastionSSHDConfigEncoded(), sshSSOPublicKey))),
+		BastionVMSize:               "Standard_D2_v3",
+		Description:                 config.Description,
+		KubernetesVersion:           "v1.19.9",
+		Name:                        config.Name,
+		Namespace:                   key.OrganizationNamespaceFromName(config.Owner),
+		Owner:                       config.Owner,
+		Version:                     config.ReleaseVersion,
+		VMSize:                      "Standard_D4s_v3",
 	}
 
 	t := template.Must(template.New(config.FileName).Parse(azure.GetTemplate()))
