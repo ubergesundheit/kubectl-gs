@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -53,6 +54,39 @@ func WriteCAPZTemplate(out io.Writer, config ClusterCRsConfig) error {
 		}
 	}
 
+	var ignitionBase64 string
+	{
+		data := struct {
+			IgnitionFiles []struct {
+				Path    string
+				Content string
+			}
+		}{
+			IgnitionFiles: []struct {
+				Path    string
+				Content string
+			}{
+				{
+					Path:    "/etc/systemd/system/set-bastion-ready.timer",
+					Content: base64.StdEncoding.EncodeToString([]byte(key.CapzSetBastionReadyTimer)),
+				},
+				{
+					Path:    "/etc/systemd/system/set-bastion-ready.service",
+					Content: base64.StdEncoding.EncodeToString([]byte(key.CapzSetBastionReadyService)),
+				},
+			},
+		}
+
+		var tpl bytes.Buffer
+		t := template.Must(template.New(config.FileName).Parse(fmt.Sprintf(key.BastionIgnitionTemplate, config.Name, key.BastionSSHDConfigEncoded(), sshSSOPublicKey)))
+		err = t.Execute(&tpl, data)
+		if err != nil {
+			return microerror.Mask(err)
+		}
+
+		ignitionBase64 = base64.StdEncoding.EncodeToString(tpl.Bytes())
+	}
+
 	data := struct {
 		BastionIgnitionSecretBase64 string
 		BastionVMSize               string
@@ -64,7 +98,7 @@ func WriteCAPZTemplate(out io.Writer, config ClusterCRsConfig) error {
 		Version                     string
 		VMSize                      string
 	}{
-		BastionIgnitionSecretBase64: base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf(key.BastionIgnitionTemplate, config.Name, key.BastionSSHDConfigEncoded(), sshSSOPublicKey))),
+		BastionIgnitionSecretBase64: ignitionBase64,
 		BastionVMSize:               "Standard_D2_v3",
 		Description:                 config.Description,
 		KubernetesVersion:           "v1.19.9",

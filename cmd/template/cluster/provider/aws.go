@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"os"
@@ -149,7 +151,10 @@ func WriteCAPATemplate(out io.Writer, config ClusterCRsConfig) error {
 	}
 	// prepare CRs and resources for bastion
 	{
-		bastionSecret := newBastionBootstrapSecret(config, key.BastionSSHDConfigEncoded(), sshSSOPublicKey)
+		bastionSecret, err := newBastionBootstrapSecret(config, key.BastionSSHDConfigEncoded(), sshSSOPublicKey)
+		if err != nil {
+			return microerror.Mask(err)
+		}
 		bastionSecret.SetLabels(crLabels)
 		bastionSecret.Labels[key.CAPIRoleLabel] = key.RoleBastion
 		bastionSecretYaml, err := yaml.Marshal(bastionSecret)
@@ -407,7 +412,31 @@ func newAWSClusterRoleIdentity(config ClusterCRsConfig) *capav1alpha3.AWSCluster
 	return awsclusterroleidentity
 }
 
-func newBastionBootstrapSecret(config ClusterCRsConfig, sshdConfig string, sshSSOPublicKey string) *v1.Secret {
+func newBastionBootstrapSecret(config ClusterCRsConfig, sshdConfig string, sshSSOPublicKey string) (*v1.Secret, error) {
+	var ignition string
+	{
+		data := struct {
+			IgnitionFiles []struct {
+				Path    string
+				Content string
+			}
+		}{
+			IgnitionFiles: []struct {
+				Path    string
+				Content string
+			}{},
+		}
+
+		var tpl bytes.Buffer
+		t := template.Must(template.New(config.FileName).Parse(fmt.Sprintf(key.BastionIgnitionTemplate, config.Name, sshdConfig, sshSSOPublicKey)))
+		err := t.Execute(&tpl, data)
+		if err != nil {
+			return nil, microerror.Mask(err)
+		}
+
+		ignition = base64.StdEncoding.EncodeToString(tpl.Bytes())
+	}
+
 	s := &v1.Secret{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Secret",
@@ -419,11 +448,11 @@ func newBastionBootstrapSecret(config ClusterCRsConfig, sshdConfig string, sshSS
 		},
 		Type: "cluster.x-k8s.io/secret",
 		StringData: map[string]string{
-			"value": fmt.Sprintf(key.BastionIgnitionTemplate, config.Name, sshdConfig, sshSSOPublicKey),
+			"value": ignition,
 		},
 	}
 
-	return s
+	return s, nil
 }
 
 func newBastionMachineDeployment(config ClusterCRsConfig) *capiv1alpha3.MachineDeployment {

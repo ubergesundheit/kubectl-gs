@@ -7,6 +7,10 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+### Added
+
+- Add CRs to create a bastion host in CAPZ cluster template.
+
 ## [1.38.0] - 2021-09-08
 
 ### Added
