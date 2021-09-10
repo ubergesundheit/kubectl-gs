@@ -7,6 +7,8 @@ and this project's packages adheres to [Semantic Versioning](http://semver.org/s
 
 ## [Unreleased]
 
+## [1.100.0] - 2021-09-10
+
 ## [1.99.0] - 2021-09-10
 
 ## [1.39.0] - 2021-09-10
@@ -493,7 +495,8 @@ This release supports rendering for CRs:
 - `AppCatalog`
 - `App`
 
-[Unreleased]: https://github.com/ubergesundheit/kubectl-gs/compare/v1.99.0...HEAD
+[Unreleased]: https://github.com/ubergesundheit/kubectl-gs/compare/v1.100.0...HEAD
+[1.100.0]: https://github.com/ubergesundheit/kubectl-gs/compare/v1.99.0...v1.100.0
 [1.99.0]: https://github.com/ubergesundheit/kubectl-gs/compare/v1.39.0...v1.99.0
 [1.39.0]: https://github.com/giantswarm/kubectl-gs/compare/v1.38.0...v1.39.0
 [1.38.0]: https://github.com/giantswarm/kubectl-gs/compare/v1.37.0...v1.38.0
