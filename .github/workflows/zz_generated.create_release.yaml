@@ -87,7 +87,7 @@ jobs:
         uses: giantswarm/install-binary-action@v1.0.0
         with:
           binary: "architect"
-          version: "3.4.0"
+          version: "5.2.0"
       - name: Install semver
         uses: giantswarm/install-binary-action@v1.0.0
         with:
@@ -257,7 +257,7 @@ jobs:
         uses: giantswarm/install-binary-action@v1.0.0
         with:
           binary: "architect"
-          version: "3.4.0"
+          version: "5.2.0"
       - name: Set up Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v2.1.4
         with:
