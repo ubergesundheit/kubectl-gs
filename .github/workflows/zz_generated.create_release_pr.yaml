@@ -9,7 +9,9 @@ on:
       - 'legacy#release#v*.*.*'
       - 'main#release#v*.*.*'
       - 'master#release#v*.*.*'
-      - 'master#release#(major|minor|patch)'
+      - 'master#release#major'
+      - 'master#release#minor'
+      - 'master#release#patch'
       - 'release-v*.*.x#release#v*.*.*'
       # "!" negates previous positive patterns so it has to be at the end.
       - '!release-v*.x.x#release#v*.*.*'
